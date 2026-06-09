@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  evolution_api:
+    image: evolutionapi/evolution-api:latest
+    container_name: evolution_api
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # Configurações básicas da Evolution API
+      - SERVER_TYPE=provided
+      - SERVER_URL=http://localhost:8080
+      - AUTHENTICATION_TYPE=apikey
+      - AUTHENTICATION_API_KEY=chave_secreta_whatsapp_123
+    volumes:
+      - evolution_instances:/evolution/instances
+
+  wpp_scheduler:
+    build: .
+    container_name: wpp_scheduler
+    restart: always
+    depends_on:
+      - evolution_api
+    volumes:
+      - ./state.json:/app/state.json
+      - ./scheduler.log:/app/scheduler.log
+    env_file:
+      - .env
+
+volumes:
+  evolution_instances:
